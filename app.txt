@@ -1,0 +1,139 @@
+from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS, cross_origin
+from flask_restx import Api, Resource, Namespace
+
+app = Flask(__name__)
+app.config["CORS_HEADERS"] = "Content-Type"
+cors = CORS(app)
+api = Api(app)
+
+ns = Namespace("api")
+
+
+@ns.route("/get_allcourses_card")
+class course_card(Resource):
+    def get(self):
+        return {
+            "card 1": {
+                "title": "course 1",
+                "description": "This course will teach you how to .....",
+                "intructor": "DR X",
+                "course code": "C101",
+                "year": "5th year",
+            },
+            "card 2": {
+                "title": "course 2",
+                "description": "This course will teach you how to .....",
+                "intructor": "DR Y",
+                "course code": "C102",
+                "year": "7th year",
+            },
+        }
+
+
+@ns.route("/get_course_page/<string:course_name>")
+class course_page(Resource):
+    def get(self, course_name):
+        if course_name:
+            return {
+                "Course Information": {
+                    "Course Title": f"{course_name}",
+                    "Course Code": "C101",
+                    "Instructor": "Instructor's Name",
+                    "Semester/Year": 2024,
+                },
+                "Course Overview": {
+                    "Course Description": "Description of the course",
+                    "Learning Objectives": [
+                        "Objective 1",
+                        "Objective 2",
+                        "Objective 3",
+                    ],
+                },
+                "Learning Modules/Units": {
+                    "Module 1": {
+                        "Module Description": "Description of Module 1",
+                        "Learning Resources": "Html pages",
+                        "Learning Activities": "Html pages",
+                        "Assessments": "Collaboration page",
+                    },
+                },
+                "Learning Objectives and Competencies": {
+                    "Learning Objectives": [
+                        "Objective 1",
+                        "Objective 2",
+                        "Objective 3",
+                    ],
+                    "Competencies": ["Competency 1", "Competency 2", "Competency 3"],
+                },
+                "Course Schedule": {
+                    "Week 1": {
+                        "Topics": "Topics for Week 1",
+                        "Reading": "Reading materials for Week 1",
+                        "Activity": "Activity for Week 1",
+                    },
+                },
+                "Assessment and Evaluation": {
+                    "Grading Policy": {
+                        "Criteria": "Grading criteria",
+                        "Weightage": "Weightage breakdown",
+                    },
+                    "Assessments": {
+                        "Assessment 1": "Details of Assessment 1",
+                        "Assessment 2": "Details of Assessment 2",
+                    },
+                    "Final Exam": "Details about the final exam",
+                },
+                "Learning Analytics": {
+                    "Tracking and Reporting": "Learning analytics tools/systems used",
+                    "Progress Monitoring": "How student progress will be monitored",
+                },
+                "Communication and Collaboration": {
+                    "Communication Channels": {
+                        "Synchronous": "Synchronous communication channels",
+                        "Asynchronous": "Asynchronous communication channels",
+                    },
+                    "Collaboration Opportunities": "Forum",
+                },
+                "Additional Resources": {
+                    "Supplementary Materials": "Supplementary materials for the course"
+                },
+                "References": "Text references",
+            }
+        else:
+            return {
+                "message": "Error please specify a course name as input {course name : XXX }"
+            }
+
+
+@ns.route("/add_course")
+class CourseList(Resource):
+    def post(self):
+        data = request.json
+        print(f"Data Read from front = {data}")
+        return {"message": "Course added successfully"}, 201
+
+
+api.add_namespace(ns)
+# @app.route("/")
+# def hello_world():
+#     return "<p> Hello World!</p>"
+
+
+@app.route("/e-content/<path:path>")
+def econtent(path):
+    return render_template("build/index.html")
+
+
+@app.route("/e-content/")
+def econtent2():
+    return render_template("build/index.html")
+
+
+@app.route("/api/navigation", methods=["POST"])
+@cross_origin()
+def get_page():
+    # if current_user.is_authenticated:
+    print(request.get_json())
+    # return "Hello, cross-origin-world!"
+    return jsonify({"data": True})

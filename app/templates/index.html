@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}
+Home Page
+{% endblock %}
+
+{% block headscript %}
+
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% if not current_user.is_authenticated %}
+    <div class="h3 text-center">
+        Please log in to continue:
+    </div>
+    <div class="h3 text-center mt-5">
+        Click <a href="/login">Here</a> to login.<br>
+            Click <a href="/register">Here</a>to Signup.
+    </div>
+    {%else%}
+    <div class="h3 text-center">
+        Welcome {{ current_user.role }} {{ current_user.first_name }}
+    </div>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-6">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col" id='docpat'>Patient name</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Approval</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbod">
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if current_user.role=='doctor'%}
+    <script>
+        $(document).ready(function () {
+            $.get("/api/get_appointments_as_doctor/{{current_user.id}}", {},
+                function (data, textStatus, jqXHR) {
+                    $.each(data, function (indexInArray, Element) {
+                        if (Element.approved) {
+                            $('#tbod').append(`<tr>
+                                <th scope="row">${indexInArray}</th>
+                                <td>${Element.patient}</td>
+                                <td>${Element.appointment_date}</td>
+                                <td><span class="badge text-bg-success">Approved</span></td>
+                                </tr>`);
+
+                        }
+                        else {
+                            $('#tbod').append(`<tr>
+                                <th scope="row">${indexInArray}</th>
+                                <td>${Element.patient}</td>
+                                <td>${Element.appointment_date}</td>
+                                <td><span class="badge text-bg-danger">Declined</span></td>
+                                </tr>`);
+
+                        }
+                    }
+
+
+                    );
+                });
+        });
+    </script>
+    {%elif current_user.role=='patient'%}
+    <script>
+        $(document).ready(function () {
+            $('#docpat').text('Doctor name');
+            $.get("/api/get_appointments_as_patient/{{current_user.id}}", {},
+                function (data, textStatus, jqXHR) {
+                    $.each(data, function (indexInArray, Element) {
+                        if (Element.approved) {
+                            $('#tbod').append(`<tr>
+                                <th scope="row">${indexInArray}</th>
+                                <td>${Element.doctor}</td>
+                                <td>${Element.appointment_date}</td>
+                                <td><span class="badge text-bg-success">Approved</span></td>
+                                </tr>`);
+
+                        }
+                        else {
+                            $('#tbod').append(`<tr>
+                                <th scope="row">${indexInArray}</th>
+                                <td>${Element.doctor}</td>
+                                <td>${Element.appointment_date}</td>
+                                <td><span class="badge text-bg-danger">Declined</span></td>
+                                </tr>`);
+
+                        }
+                    }
+
+
+                    );
+                });
+
+        });
+    </script>
+    {% endif %}
+    {% endif %}
+
+</div>
+{% endblock %}
